@@ -1,4 +1,16 @@
-# LaCT-Motion
+# **[ECCV 2026]** LaCT-Motion
+
+**Practice Makes Perfect: From Explicit Decomposition to Reinforced Latent Planning in Text-to-Motion Generation**
+
+[![Paper](https://img.shields.io/badge/Paper-ECCV%202026-b31b1b.svg)](https://media.eventhosts.cc/Conferences/ECCV2026/pdfs/13122.pdf)
+
+Ronghao Yu<sup>1,2\*‡</sup>, Yang Liu<sup>3\*</sup>, Juncheng Wang<sup>4</sup>, Chao Xu<sup>2,5</sup>, Yimo Shao<sup>6</sup>, Baigui Sun<sup>2,5</sup>, Yong Liu<sup>1,7†</sup>, Shan Luo<sup>3†</sup>
+
+<sup>1</sup>Zhejiang University, <sup>2</sup>IROOTECH TECHNOLOGY, <sup>3</sup>King's College London, <sup>4</sup>The Hong Kong Polytechnic University, <sup>5</sup>Wolf 1069 b Lab, Sany Group, <sup>6</sup>The University of Melbourne, <sup>7</sup>Huzhou Institute of Zhejiang University
+
+<sup>\*</sup>Equal contribution. <sup>†</sup>Corresponding authors. <sup>‡</sup>This work was conducted in collaboration with IROOTECH TECHNOLOGY.
+
+This repository is the **official implementation** of our **ECCV 2026** paper. Paper PDF: <https://media.eventhosts.cc/Conferences/ECCV2026/pdfs/13122.pdf>
 
 LaCT-Motion combines latent chain-of-thought supervised fine-tuning (SFT) with Group Relative Policy Optimization (GRPO) for text-to-human motion generation. The model uses Qwen2.5-3B-Instruct, a curriculum that replaces explicit reasoning steps with latent states, and a vocabulary of 512 motion codes.
 
@@ -278,3 +290,16 @@ Use `--text-file prompts.txt` for multiple prompts. The demo saves motion featur
 ## Acknowledgements
 
 The implementations build on Coconut-style latent reasoning, Qwen, UniMo, Motion-R1, HumanML3D, and TRL. Bundled third-party code retains its copyright notices and licenses. Qwen's license is included with the base model files.
+
+## Citation
+
+If you find LaCT-Motion useful for your research, please cite our paper:
+
+```bibtex
+@inproceedings{yu2026lactmotion,
+  title     = {Practice Makes Perfect: From Explicit Decomposition to Reinforced Latent Planning in Text-to-Motion Generation},
+  author    = {Yu, Ronghao and Liu, Yang and Wang, Juncheng and Xu, Chao and Shao, Yimo and Sun, Baigui and Liu, Yong and Luo, Shan},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2026}
+}
+```

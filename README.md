@@ -4,9 +4,9 @@
 
 [![Paper](https://img.shields.io/badge/Paper-ECCV%202026-b31b1b.svg)](https://media.eventhosts.cc/Conferences/ECCV2026/pdfs/13122.pdf)
 
-Ronghao Yu<sup>1,2\*‡</sup>, Yang Liu<sup>3\*</sup>, Juncheng Wang<sup>4</sup>, Chao Xu<sup>2,5</sup>, Yimo Shao<sup>6</sup>, Baigui Sun<sup>2,5</sup>, Yong Liu<sup>1,7†</sup>, Shan Luo<sup>3†</sup>
+Ronghao Yu<sup>1,2\*‡</sup>, Xiyue Bai<sup>3\*</sup>, Yang Liu<sup>4\*</sup>, Juncheng Wang<sup>5</sup>, Chao Xu<sup>2,6</sup>, Yimo Shao<sup>7</sup>, Baigui Sun<sup>2,6</sup>, Yong Liu<sup>1,8†</sup>, Shan Luo<sup>4†</sup>
 
-<sup>1</sup>Zhejiang University, <sup>2</sup>IROOTECH TECHNOLOGY, <sup>3</sup>King's College London, <sup>4</sup>The Hong Kong Polytechnic University, <sup>5</sup>Wolf 1069 b Lab, Sany Group, <sup>6</sup>The University of Melbourne, <sup>7</sup>Huzhou Institute of Zhejiang University
+<sup>1</sup>Zhejiang University, <sup>2</sup>IROOTECH TECHNOLOGY, <sup>3</sup>Fudan University, <sup>4</sup>King's College London, <sup>5</sup>The Hong Kong Polytechnic University, <sup>6</sup>Wolf 1069 b Lab, Sany Group, <sup>7</sup>The University of Melbourne, <sup>8</sup>Huzhou Institute of Zhejiang University
 
 <sup>\*</sup>Equal contribution. <sup>†</sup>Corresponding authors. <sup>‡</sup>This work was conducted in collaboration with IROOTECH TECHNOLOGY.
 
@@ -298,7 +298,7 @@ If you find LaCT-Motion useful for your research, please cite our paper:
 ```bibtex
 @inproceedings{yu2026lactmotion,
   title     = {Practice Makes Perfect: From Explicit Decomposition to Reinforced Latent Planning in Text-to-Motion Generation},
-  author    = {Yu, Ronghao and Liu, Yang and Wang, Juncheng and Xu, Chao and Shao, Yimo and Sun, Baigui and Liu, Yong and Luo, Shan},
+  author    = {Yu, Ronghao and Bai, Xiyue and Liu, Yang and Wang, Juncheng and Xu, Chao and Shao, Yimo and Sun, Baigui and Liu, Yong and Luo, Shan},
   booktitle = {European Conference on Computer Vision (ECCV)},
   year      = {2026}
 }

@@ -46,7 +46,7 @@ LaCT-Motion/
 ├── options/{sft,grpo}/          # Training configurations
 ├── options/local/              # Local run configurations
 ├── scripts/{sft,grpo}/          # Shell workflows
-├── prepare/                    # Data builder and integrity verifier
+├── prepare/                    # Data builder, integrity verifier, and download scripts
 ├── tests/{sft,grpo}/
 ├── debug/{sft,grpo}/
 ├── docs/                       # Provenance and retained historical documents
@@ -71,7 +71,9 @@ SFT import and CLI checks use PyTorch 2.2.0 and Transformers 4.57.3. The GRPO la
 
 The custom TRL reward implementation is bundled under `third_party/trl_motion`; a separately modified TRL checkout is not required. Optional mathematical or motion-to-text reward variants may require additional packages such as `math_verify` or CLIP. The default text-to-motion reward path uses the included VQ-VAE, evaluator, and GloVe resources.
 
-## Included Data and Model Resources
+## Data and Model Resources
+
+The project expects the following resources at these project-relative locations. The five JSON files under `data/` are tracked in this repository. Everything else is excluded from version control by `.gitignore` and must be downloaded or produced as described in [Pretrained Weight and Dataset Preparation](#pretrained-weight-and-dataset-preparation).
 
 | Resource | Project-relative location | Contents |
 |---|---|---|
@@ -87,13 +89,66 @@ The custom TRL reward implementation is bundled under `third_party/trl_motion`; 
 | Evaluation configuration | `checkpoints/t2m/Comp_v6_KLD005/opt.txt` | Evaluator dimensions and options |
 | Motion normalization | `checkpoints/t2m/VQVAEV3_CB1024_CMT_H1024_NRES3/meta/` | `mean.npy` and `std.npy` |
 | Word embeddings | `glove/` | `our_vab_data.npy`, `our_vab_idx.pkl`, and `our_vab_words.pkl` |
-| HumanML3D resources | `dataset/HumanML3D/` | Raw joint features, caption/POS text, reasoning text, and train/validation/test split files |
+| HumanML3D resources | `dataset/HumanML3D/` | Raw joint features, caption/POS text, optional reasoning text, and train/validation/test split files |
 
 Each processed split is a JSON array with `question` (a ChatML prompt), `steps` (a list of reasoning strings), and `answer` (motion tokens wrapped in `<Motion>...</Motion>`). These three datasets are shared by SFT and GRPO and have not been filtered, regenerated, or rewritten.
 
 The included reasoning JSON was recovered from an existing same-name copy after the former source path became unavailable. Its reasoning sequences match every nonempty `steps` sequence in the included training split. Original source hashes and the source of each retained file are recorded in `docs/COPY_MANIFEST.json`.
 
-The supplied SFT checkpoint is used to initialize a new GRPO run. Its former SFT optimizer state is not needed for that purpose and is not copied. New SFT runs save under `checkpoints/sft/runs/` to keep the supplied initialization checkpoint separate.
+The `checkpoint-epoch6` SFT checkpoint is used to initialize a new GRPO run. Its former SFT optimizer state is not needed for that purpose and is not kept. New SFT runs save under `checkpoints/sft/runs/` to keep the initialization checkpoint separate.
+
+## Pretrained Weight and Dataset Preparation
+
+The download steps mirror those of [UniMo](https://github.com/GuocunWang/UniMo); the VQ-VAE, GloVe, and evaluator files are byte-identical to the ones UniMo uses. The download scripts need `gdown` and `unzip`:
+
+```bash
+python -m pip install gdown
+```
+
+1. **VQ-VAE, GloVe, and evaluator weights**
+
+   These come from the [Motion-Agent](https://github.com/szqwu/Motion-Agent) release. Run the scripts from the project root:
+
+   ```bash
+   bash prepare/download_ckpt.sh        # ckpt/vqvae.pth
+   bash prepare/download_glove.sh       # glove/our_vab_{data.npy,idx.pkl,words.pkl}
+   bash prepare/download_extractor.sh   # checkpoints/t2m/{Comp_v6_KLD005,text_mot_match,VQVAEV3_CB1024_CMT_H1024_NRES3}
+   ```
+
+   Each script downloads one Motion-Agent archive (`motion_agent.zip`, `glove.zip`, or `t2m.zip`) and keeps only the files listed in the table above; `motionllm.pth` and the unused evaluator models are discarded, and the KIT-ML archive is not downloaded. Unlike the upstream scripts, they never delete `checkpoints/`, so SFT and GRPO checkpoints stored there are preserved. If Google Drive is not reachable from the machine, download the archive in a browser, place it in the project root under the same name, and rerun the script; the download step is skipped when the archive is already present.
+
+2. **Qwen2.5-3B-Instruct**
+
+   Place the official [Qwen2.5-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct) model in `Qwen/Qwen2.5-3B-Instruct/`:
+
+   ```bash
+   hf download Qwen/Qwen2.5-3B-Instruct --local-dir Qwen/Qwen2.5-3B-Instruct
+   ```
+
+   Older `huggingface_hub` releases use `huggingface-cli download` with the same arguments.
+
+3. **HumanML3D dataset**
+
+   Follow the [HumanML3D repository](https://github.com/EricGuo5513/HumanML3D) to obtain AMASS and HumanAct12 and run its processing notebooks, which produce the motion features, the captions with POS tags, and the split files. Copy them into:
+
+   ```text
+   dataset/HumanML3D/
+   ├── new_joint_vecs/   # <id>.npy, 263-dim HumanML3D features (29,226 files)
+   ├── texts/            # <id>.txt, one "caption#POS tokens#start#end" line per caption (29,232 files)
+   ├── train.txt
+   ├── val.txt
+   └── test.txt
+   ```
+
+   `Mean.npy` and `Std.npy` from HumanML3D are not used; normalization comes from `checkpoints/t2m/VQVAEV3_CB1024_CMT_H1024_NRES3/meta/`.
+
+4. **Reasoning text (optional)**
+
+   `dataset/HumanML3D/final/` holds one `<thinking>...</thinking>` file per caption, named `<motion id>_<caption index>.txt` (87,383 files). The processed splits already contain the reasoning steps, and `get_train_data.py` rebuilds them from `data/texts_think_steps.json`, which is included in the repository, so this directory is not required for training. The evaluation loader reads it when present and otherwise uses an empty chain-of-thought and prints a warning per caption; the reported metrics do not depend on it. UniMo's `texts_think_qwen.zip` uses a different per-motion layout and is not a drop-in replacement.
+
+5. **SFT checkpoint for GRPO**
+
+   `checkpoints/sft/checkpoint-epoch6/` is not distributed. Produce an equivalent checkpoint with Stage 1 below (saved under `checkpoints/sft/runs/`) and point `sft_checkpoint` in the GRPO configuration to it.
 
 ## Configuration
 

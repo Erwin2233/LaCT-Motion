@@ -3,6 +3,7 @@
 **Practice Makes Perfect: From Explicit Decomposition to Reinforced Latent Planning in Text-to-Motion Generation**
 
 [![Paper](https://img.shields.io/badge/Paper-ECCV%202026-b31b1b.svg)](https://media.eventhosts.cc/Conferences/ECCV2026/pdfs/13122.pdf)
+[![SFT checkpoint](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-SFT%20checkpoint-yellow.svg)](https://huggingface.co/RHYu2233/LaCT-Motion-SFT)
 
 Ronghao Yu<sup>1,2\*‡</sup>, Xiyue Bai<sup>3\*</sup>, Yang Liu<sup>4\*</sup>, Juncheng Wang<sup>5</sup>, Chao Xu<sup>2,6</sup>, Yimo Shao<sup>7</sup>, Baigui Sun<sup>2,6</sup>, Yong Liu<sup>1,8†</sup>, Shan Luo<sup>4†</sup>
 
@@ -88,7 +89,7 @@ The project expects the following resources at these project-relative locations.
 | Reasoning annotations | `data/texts_think_steps.json` | 87,245 records with `id` and `steps` |
 | POS-tagged motion/caption data | `data/motion_train.json` | 66,490 records |
 | Qwen base model | `Qwen/Qwen2.5-3B-Instruct/` | Model shards, configuration, and tokenizer |
-| Initial SFT checkpoint for GRPO | `checkpoints/sft/checkpoint-epoch6/` | Model shards and tokenizer from the checkpoint referenced by the original GRPO configurations |
+| Initial SFT checkpoint for GRPO | `checkpoints/sft/checkpoint-epoch6/` | Model shards and tokenizer from the checkpoint referenced by the original GRPO configurations; download from [Hugging Face](https://huggingface.co/RHYu2233/LaCT-Motion-SFT) |
 | Motion VQ-VAE | `ckpt/vqvae.pth` | Motion decoder weights |
 | Reward/evaluation model | `checkpoints/t2m/text_mot_match/model/finest.tar` | Text, motion, and movement encoders |
 | Evaluation configuration | `checkpoints/t2m/Comp_v6_KLD005/opt.txt` | Evaluator dimensions and options |
@@ -151,7 +152,13 @@ python -m pip install gdown
 
 5. **SFT checkpoint for GRPO**
 
-   `checkpoints/sft/checkpoint-epoch6/` is not distributed. Produce an equivalent checkpoint with Stage 1 below (saved under `checkpoints/sft/runs/`) and point `sft_checkpoint` in the GRPO configuration to it.
+   The SFT checkpoint that initializes GRPO is released on Hugging Face: [RHYu2233/LaCT-Motion-SFT](https://huggingface.co/RHYu2233/LaCT-Motion-SFT). Download it into the expected location:
+
+   ```bash
+   hf download RHYu2233/LaCT-Motion-SFT --local-dir checkpoints/sft/checkpoint-epoch6
+   ```
+
+   Alternatively, produce an equivalent checkpoint with Stage 1 below (saved under `checkpoints/sft/runs/`) and point `sft_checkpoint` in the GRPO configuration to it.
 
 ## Configuration
 

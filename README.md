@@ -12,10 +12,6 @@ Ronghao Yu<sup>1,2\*‡</sup>, Xiyue Bai<sup>3\*</sup>, Yang Liu<sup>4\*</sup>, 
 
 This repository is the **official implementation** of our **ECCV 2026** paper. Paper PDF: <https://media.eventhosts.cc/Conferences/ECCV2026/pdfs/13122.pdf>
 
-LaCT-Motion combines latent chain-of-thought supervised fine-tuning (SFT) with Group Relative Policy Optimization (GRPO) for text-to-human motion generation. The model uses Qwen2.5-3B-Instruct, a curriculum that replaces explicit reasoning steps with latent states, and a vocabulary of 512 motion codes.
-
-The project follows a UniMo-style layout with root training, evaluation, data preparation, and demo entry points. The Motion-R1 modules and custom TRL motion rewards used by the pipeline are included locally. Runtime code does not require a sibling project checkout or an external project-path environment variable. Python resolves bundled resources from the project directory; configuration and command examples use relative paths.
-
 ## Repository Layout
 
 ```text

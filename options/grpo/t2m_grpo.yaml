@@ -1,0 +1,122 @@
+# GRPO Training for CoconutMotion (Latent CoT + Motion Generation)
+# Aligned with: trl/run_t2m_semantic_grpo_full.sh
+# Base: configs/t2m_coconut.yaml (SFT)
+
+project: latent-cot-grpo
+save_path: ./checkpoints/grpo
+name: t2m-grpo-qwen3b
+
+# === Model (same as SFT) ===
+model_id: Qwen/Qwen2.5-3B-Instruct
+sft_checkpoint: ./checkpoints/sft/checkpoint-epoch6  # SFT checkpoint (epoch 13)
+bf16: true
+attn_implementation: eager
+
+# Coconut config (must match SFT)
+coconut: true
+c_thought: 2
+max_latent_stage: 8
+pad_latent_to_max: true
+
+# Motion tokens
+nb_code: 512
+
+# === Generation (aligned with TRL reference) ===
+num_generations: 8          # G completions per prompt (TRL: 8)
+temperature: 1.0            # sampling temperature
+top_p: 0.9                  # nucleus sampling
+top_k: 0                    # disabled (0 = off)
+max_new_tokens: 80         # max completion length (TRL: 512)
+
+# === GRPO Loss (aligned with TRL reference) ===
+loss_type: dapo             # grpo / dapo / dr_grpo / bnpo / cispo / sapo
+beta: 0.001                 # KL penalty coefficient (TRL: 0.001)
+epsilon: 0.2                # PPO-style clipping epsilon (TRL: 0.2)
+scale_rewards: group        # group / batch / none
+kl_clip_max: 10.0           # per-token KL clipping (prevents explosion from rare tokens)
+
+# === Training (aligned with TRL reference) ===
+# Effective batch = batch_size * gradient_accumulation * num_gpus
+# TRL reference: 32 * 4 * 1 GPU = 128 prompts per optimizer step
+# Ours (2 GPU):   2 * 32 * 2 GPU = 128 prompts per optimizer step
+# Ours (4 GPU):   2 * 16 * 4 GPU = 128 prompts per optimizer step
+# Ours (8 GPU):   2 * 8  * 8 GPU = 128 prompts per optimizer step
+# NOTE: per-GPU forward batch = batch_size * num_generations.
+# With G=8 and multi-pass latent forward + 152K vocab logits,
+# batch_size must be small to avoid OOM (batch*G*seq*vocab is huge).
+lr: 5.0e-5                # learning rate
+min_lr: 1.0e-6              # cosine decay floor (TRL polynomial → 1e-7)
+weight_decay: 0.1
+grad_clip: 0.8               # gradient clipping max norm
+warmup_steps: 0.0             # no warmup (TRL: warmup_ratio=0.0)
+num_epochs: 2               # (TRL: 3)
+batch_size_training: 10        # per-GPU batch — forward = 8*G=64 samples
+gradient_accumulation_steps: 8  # 10*2*8GPU=160 prompts/step
+max_seq_len: 512           # prompt + completion
+gradient_checkpointing: true      # (TRL: true) saves ~40% memory
+use_fsdp: false
+deterministic: false
+train_num_workers: 8
+val_num_workers: 2
+dataloader_prefetch_factor: 2
+dataloader_persistent_workers: true
+non_blocking_transfer: true
+zero_grad_set_to_none: true
+
+# === LoRA ===
+# TRL reference trains full model (no LoRA). Set use_lora: true to enable
+# LoRA for memory-efficient policy/reference sharing via disable_adapter().
+# When use_lora: false, a separate frozen reference model is loaded for KL.
+use_lora: false
+
+# === Reward (aligned with TRL reference) ===
+# reward_mode: "trl" (default, uses RewardComputer) or "unimo" (UniMo-style)
+# reward_weights applies to BOTH modes:
+#   - unimo: [format_w, motion_sim_w, text_sim_w], default [1, 1, 1]
+#     reward = format_w * format + motion_sim_w * cos(em_pred, em_gt) + text_sim_w * cos(em_pred, et_gt)
+#   - trl:   weights for reward_funcs list
+reward_mode: unimo
+reward_source: trl
+reward_preset: semantic              # funcs: [format, motion_embedding, semantic]
+# Custom overrides (uncomment reward_funcs to ignore preset entirely):
+# reward_funcs: [format, motion_embedding, semantic]
+# format_strict: local reward that checks strict <Motion>...</Motion> format,
+# catches repeated </Motion>, missing tags, garbage content, etc.
+reward_funcs: [format_strict, motion_embedding, semantic]
+# unimo mode: [format_w, motion_sim_w, text_sim_w]
+# format=1.0, motion-to-motion similarity=1.0, motion-to-text similarity=1.0
+reward_weights: [1.0, 1.0, 1.0]
+# UniMo-style combined reward (motion_embedding + semantic in one function):
+# reward_funcs: [format_strict, unified_similarity]
+# reward_weights: [1, 1]
+
+# Disable torch.compile until KL explosion is resolved
+use_torch_compile: false
+
+# === Data (same paths as SFT) ===
+train_path: ./data/t2m_train.json
+val_path: ./data/t2m_val.json
+max_think_steps: 20
+# UniMo POS-tagged tokens for accurate text embedding in reward computation
+unimo_tokens_path: ./data/motion_train.json
+
+# === Checkpoint & Logging (aligned with TRL reference) ===
+log_interval: 1              # (TRL: logging_steps=10)
+save_interval: 20           # (TRL: save_steps=250)
+save_total_limit: 20         # (TRL: save_total_limit=10)
+save_training_state: false   # 不保存 training_state.pt(优化器状态),仅存 HF 权重,省盘;无法续训
+eval_interval: 200           # validate every N gradient steps
+val_batch_size: 16
+val_gen_max_samples: 50
+
+# === Monitoring ===
+show_progress_bar: true
+use_wandb: true
+wandb_project: latent-cot-grpo
+wandb_run_name: t2m-grpo-qwen3b
+# wandb_entity: your_team
+# wandb_mode: offline  # online / offline / disabled
+
+# === Misc ===
+seed: 42
+torch_compile_mode: default          # reduce-overhead 与 flash_attention_2 + DynamicCache 不兼容

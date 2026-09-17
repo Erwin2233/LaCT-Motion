@@ -1,0 +1,24 @@
+# Runtime artifacts; retain source copies and training templates.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+# Keep the shared JSON dataset; ignore other generated data.
+/data/*
+!/data/t2m_train.json
+!/data/t2m_val.json
+!/data/t2m_test.json
+!/data/texts_think_steps.json
+!/data/motion_train.json
+dataset/HumanML3D/
+checkpoints/
+ckpt/
+glove/
+Qwen/
+outputs/
+logs/
+results/
+options/local/
+wandb/
+*.log
+*.wandb

@@ -1,0 +1,74 @@
+# Coconut-style latent SFT for Text-to-Motion
+project: latent-cot-motion
+save_path: ./checkpoints/sft/runs
+name: t2m-coconut-qwen3b
+
+# Model
+model_id: Qwen/Qwen2.5-3B-Instruct
+bf16: true
+attn_implementation: flash_attention_2
+
+# Coconut modes
+coconut: true
+cot: false           # pure CoT SFT (stage 0 forever)
+no_cot: false        # skip all reasoning
+
+# Curriculum schedule
+c_thought: 2         # latent tokens per replaced step
+epochs_per_stage: 3   # epochs per stage (stage 1 onward)
+stage0_extra_epochs: 7 # extra epochs for stage 0 (total stage0 = epochs_per_stage + this = 10)
+max_latent_stage: 8   # max number of steps to replace (= 16 latent tokens)
+pad_latent_to_max: true
+
+# Training
+num_epochs: 34
+batch_size_training: 24
+gradient_accumulation_steps: 8
+lr: 1.0e-4
+min_lr: 1.0e-5                # cosine annealing target (default: lr * 0.1)
+weight_decay: 0.01
+grad_clip: 1.0            # max gradient norm (prevents NaN in bf16)
+warmup_steps: 200
+max_seq_len: 512
+use_fsdp: false           # DDP for 3B model; FSDP causes NCCL deadlock with variable latent counts
+deterministic: false      # throughput-first: enable cudnn benchmark
+train_num_workers: 8
+val_num_workers: 2
+dataloader_prefetch_factor: 4
+dataloader_persistent_workers: true
+non_blocking_transfer: true
+zero_grad_set_to_none: true
+
+# Data
+train_path: ./data/t2m_train.json
+val_path: ./data/t2m_val.json
+max_think_steps: 20   # cap thinking steps per sample
+
+# Motion tokens
+nb_code: 512
+
+# Sampling
+uniform_prob: 0.1     # probability of randomly sampling a stage
+
+# Checkpoint
+save_every_n_epochs: 6    # save checkpoint every N epochs (1 = every epoch)
+save_only_improve: false
+resume: 0
+load_model_path: "None"
+reset_optimizer: true
+
+# Evaluation
+only_eval: false
+max_new_tokens: 256
+val_batch_size: 32         # batch size for validation (loss & generation eval)
+
+# Validation during training (set to 0 to disable)
+val_loss_every_n_epochs: 0       # 0 = disabled (UniMo style: no val during training)
+val_gen_every_n_epochs: 0        # 0 = disabled
+val_gen_max_samples: 50          # max samples per GPU for generation eval
+val_max_samples: 100             # max val samples loaded per validation round
+val_start_epoch: 0               # epoch to start validation
+
+# Misc
+seed: 42
+log_interval: 10

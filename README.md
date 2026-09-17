@@ -298,7 +298,7 @@ If you find LaCT-Motion useful for your research, please cite our paper:
 ```bibtex
 @inproceedings{yu2026lactmotion,
   title     = {Practice Makes Perfect: From Explicit Decomposition to Reinforced Latent Planning in Text-to-Motion Generation},
-  author    = {Yu, Ronghao and Bai, Xiyue and Liu, Yang and Wang, Juncheng and Xu, Chao and Shao, Yimo and Sun, Baigui and Liu, Yong and Luo, Shan},
+  author    = {Yu, Ronghao and Liu, Yang and Wang, Juncheng and Xu, Chao and Shao, Yimo and Sun, Baigui and Liu, Yong and Luo, Shan},
   booktitle = {European Conference on Computer Vision (ECCV)},
   year      = {2026}
 }

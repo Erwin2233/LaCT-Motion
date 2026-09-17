@@ -55,7 +55,6 @@ LaCT-Motion/
 ├── options/local/              # Local run configurations
 ├── scripts/{sft,grpo}/          # Shell workflows
 ├── prepare/                    # Data builder, integrity verifier, and download scripts
-├── docs/                       # Provenance and retained historical documents
 ├── outputs/                    # Run logs, process records, and runtime files
 └── results/                    # Generated motions and evaluation results
 ```
@@ -98,8 +97,6 @@ The project expects the following resources at these project-relative locations.
 | HumanML3D resources | `dataset/HumanML3D/` | Raw joint features, caption/POS text, optional reasoning text, and train/validation/test split files |
 
 Each processed split is a JSON array with `question` (a ChatML prompt), `steps` (a list of reasoning strings), and `answer` (motion tokens wrapped in `<Motion>...</Motion>`). These three datasets are shared by SFT and GRPO and have not been filtered, regenerated, or rewritten.
-
-The included reasoning JSON was recovered from an existing same-name copy after the former source path became unavailable. Its reasoning sequences match every nonempty `steps` sequence in the included training split. Original source hashes and the source of each retained file are recorded in `docs/COPY_MANIFEST.json`.
 
 The `checkpoint-epoch6` SFT checkpoint is used to initialize a new GRPO run. Its former SFT optimizer state is not needed for that purpose and is not kept. New SFT runs save under `checkpoints/sft/runs/` to keep the initialization checkpoint separate.
 

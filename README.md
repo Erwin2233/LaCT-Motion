@@ -220,26 +220,6 @@ python demo.py options/sft/t2m_coconut.yaml \
 
 Use `--text-file prompts.txt` for multiple prompts. The demo saves motion features, joint coordinates, metadata, and a skeleton video when FFmpeg is available. Standalone SMPL rendering is excluded.
 
-## Verification and Implementation Notes
-
-Verify the retained source/data files and their recorded local adaptations:
-
-```bash
-python prepare/verify_copies.py
-```
-
-To verify model and raw-dataset resources as well, use `--include-resources`. The optional `--check-sources` flag additionally compares the original workspace sources when those source directories are available; normal execution does not use them.
-
-The GRPO DDP synchronization bug has been fixed by selecting gradient synchronization before the policy forward pass. A two-process CPU regression checks model parameters and AdamW state against a single-process global-batch reference, including accumulation factors 1, 3, and 8 and incomplete final accumulation windows:
-
-```bash
-python -m unittest discover -s tests/grpo -p test_ddp_accumulation.py -v
-```
-
-SFT keeps synchronization enabled during each backward pass and updates parameters at the accumulation boundary. Training objectives and hyperparameters are otherwise preserved except for explicit run configuration choices.
-
-The historical SFT regression suite still references `_compute_warmup_lr`, which is absent from the retained trainer. The older GRPO-specific inference/evaluation files also retain a missing legacy `train` import; use the root demo and evaluation entry points. GRPO validation/resume options are not a complete evaluation or optimizer-resume workflow; use the explicit evaluation command above. These separate issues are not covered by the DDP fix.
-
 ## Acknowledgements
 
 The implementations build on Coconut-style latent reasoning, Qwen, UniMo, Motion-R1, HumanML3D, and TRL. Bundled third-party code retains its copyright notices and licenses. Qwen's license is included with the base model files.

@@ -16,7 +16,7 @@ The project combines the SFT implementation from `latent-cot-motion` and the GRP
 | GRPO rewards and losses | `rewards/grpo/` |
 | Motion-R1 VQ-VAE and motion utilities | `third_party/motion_r1/` |
 | Customized TRL rewards and T2M dependencies | `third_party/trl_motion/` |
-| Shell workflows, tests, and debugging tools | `scripts/`, `tests/`, `debug/` |
+| Shell workflows | `scripts/` |
 | Historical technical documents | `docs/{sft,grpo}/` |
 
 `_bootstrap.py` maps the original flat import names to the appropriate stage and makes root entry points interpret relative paths from the project root. `_paths.py` resolves bundled resources. Runtime imports do not depend on sibling source projects. The identical Motion-R1 skeleton parameters reuse the shared evaluator module.

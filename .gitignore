@@ -22,3 +22,7 @@ options/local/
 wandb/
 *.log
 *.wandb
+# Local-only test and debugging helpers; not published.
+tests/
+debug/
+run_tests.py

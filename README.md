@@ -55,8 +55,6 @@ LaCT-Motion/
 ├── options/local/              # Local run configurations
 ├── scripts/{sft,grpo}/          # Shell workflows
 ├── prepare/                    # Data builder, integrity verifier, and download scripts
-├── tests/{sft,grpo}/
-├── debug/{sft,grpo}/
 ├── docs/                       # Provenance and retained historical documents
 ├── outputs/                    # Run logs, process records, and runtime files
 └── results/                    # Generated motions and evaluation results
